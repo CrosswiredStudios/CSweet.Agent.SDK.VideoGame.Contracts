@@ -1,0 +1,90 @@
+name: publish-nuget
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - src/CSweet.Agent.SDK.VideoGame.Contracts/CSweet.Agent.SDK.VideoGame.Contracts.csproj
+      - releases/*.md
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  id-token: write  # required for NuGet trusted publishing (OIDC)
+
+concurrency:
+  group: nuget-publish-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.ref_type == 'tag' || github.ref_name == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Read and verify package version
+        id: package
+        shell: pwsh
+        run: |
+          $project = [xml](Get-Content src/CSweet.Agent.SDK.VideoGame.Contracts/CSweet.Agent.SDK.VideoGame.Contracts.csproj)
+          $packageId = [string]$project.Project.PropertyGroup.PackageId
+          $version = [string]$project.Project.PropertyGroup.Version
+          if ([string]::IsNullOrWhiteSpace($packageId) -or [string]::IsNullOrWhiteSpace($version)) {
+            throw "PackageId and Version must be defined in the package project."
+          }
+          $notes = "releases/$version.md"
+          if (-not (Test-Path -LiteralPath $notes)) {
+            throw "Matching versioned release notes are required: $notes"
+          }
+          if ((Get-Content -LiteralPath $notes -TotalCount 1) -ne "# $version") {
+            throw "Release-note heading must match package version $version."
+          }
+          if ('${{ github.ref_type }}' -eq 'tag') {
+            $tagVersion = '${{ github.ref_name }}'.TrimStart('v')
+            if ($tagVersion -ne $version) {
+              throw "Tag version $tagVersion does not match package version $version."
+            }
+          }
+          "id=$packageId" >> $env:GITHUB_OUTPUT
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "tag=v$version" >> $env:GITHUB_OUTPUT
+      - run: dotnet restore CSweet.Agent.SDK.VideoGame.Contracts.slnx
+      - run: dotnet build CSweet.Agent.SDK.VideoGame.Contracts.slnx --configuration Release --no-restore
+      - run: dotnet test CSweet.Agent.SDK.VideoGame.Contracts.slnx --configuration Release --no-build --no-restore
+      - run: dotnet pack src/CSweet.Agent.SDK.VideoGame.Contracts/CSweet.Agent.SDK.VideoGame.Contracts.csproj --configuration Release --no-build --no-restore --output artifacts/packages
+      - name: NuGet login (OIDC -> temporary API key)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: ${{ secrets.NUGET_USER }}
+      - name: Publish package to NuGet.org
+        shell: pwsh
+        env:
+          NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
+        run: |
+          Get-ChildItem artifacts/packages -Filter *.nupkg |
+            Where-Object Extension -eq '.nupkg' |
+            ForEach-Object {
+              dotnet nuget push $_.FullName --api-key $env:NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
+              if ($LASTEXITCODE -ne 0) { throw "NuGet push failed for $($_.Name)." }
+            }
+      - name: Create GitHub release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.package.outputs.tag }}
+          PACKAGE_ID: ${{ steps.package.outputs.id }}
+          PACKAGE_VERSION: ${{ steps.package.outputs.version }}
+        run: |
+          gh release view $env:RELEASE_TAG --repo '${{ github.repository }}' *> $null
+          if ($LASTEXITCODE -eq 0) { exit 0 }
+          $notes = "releases/$($env:PACKAGE_VERSION).md"
+          gh release create $env:RELEASE_TAG --repo '${{ github.repository }}' --target '${{ github.sha }}' --title "$env:PACKAGE_ID $env:PACKAGE_VERSION" --notes-file $notes
+          if ($LASTEXITCODE -ne 0) { throw "GitHub release creation failed." }

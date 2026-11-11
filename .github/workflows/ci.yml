@@ -1,0 +1,28 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test-pack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - run: dotnet restore CSweet.Agent.SDK.VideoGame.Contracts.slnx
+      - run: dotnet build CSweet.Agent.SDK.VideoGame.Contracts.slnx --configuration Release --no-restore
+      - run: dotnet test CSweet.Agent.SDK.VideoGame.Contracts.slnx --configuration Release --no-build --no-restore
+      - run: dotnet pack src/CSweet.Agent.SDK.VideoGame.Contracts/CSweet.Agent.SDK.VideoGame.Contracts.csproj --configuration Release --no-build --no-restore --output artifacts/packages
+      - uses: actions/upload-artifact@v4
+        with:
+          name: packages
+          path: artifacts/packages/*.*nupkg

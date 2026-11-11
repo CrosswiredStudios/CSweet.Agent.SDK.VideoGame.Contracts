@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <PackageId>CSweet.Agent.SDK.VideoGame.Contracts</PackageId>
+    <Version>1.0.0</Version>
+    <PackageVersion Condition="'$(CSweetVideoGameContractsPackageVersion)' != ''">$(CSweetVideoGameContractsPackageVersion)</PackageVersion>
+    <Authors>C-Sweet</Authors>
+    <Company>C-Sweet</Company>
+    <Description>Optional shared contracts for C-Sweet video-game agents: planning payloads, role, specialization and work item type keys, and production artifact records. Not required by the C-Sweet Agent SDK or the platform.</Description>
+    <PackageTags>csweet;agents;contracts;video-game;game-development</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/CrosswiredStudios/CSweet.Agent.SDK.VideoGame.Contracts</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.401" PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+</Project>
