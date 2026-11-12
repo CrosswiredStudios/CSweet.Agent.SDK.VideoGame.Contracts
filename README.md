@@ -18,3 +18,5 @@ dotnet pack src/CSweet.Agent.SDK.VideoGame.Contracts/CSweet.Agent.SDK.VideoGame.
 ## Releases
 
 Pushing a version change to `main` (or a `v*.*.*` tag) publishes to NuGet.org through trusted publishing and creates a GitHub release from `releases/<version>.md`. See [AGENTS.md](AGENTS.md) for versioning and compatibility rules.
+
+Version 1.1.0 adds optional GDD coordination contracts and semantic coverage identifiers. The package README documents raw JSON exchange for third-party agents and preserves earlier request/result/feedback wire shapes. Document structures remain unrestricted; review and recovery execute in the agents.
