@@ -8,6 +8,8 @@ Contents (namespace `CSweet.Agent.SDK.VideoGame.Contracts`):
 - Keys: `VideoGameRoleKeys`, `VideoGameSpecializationKeys`, `VideoGameWorkItemTypeKeys`, `VideoGameArtifactTypeKeys`, lifecycle phases, milestones and toolchain recipes.
 - Production records: vision brief, asset strategy, creative review rubric, toolchain recommendation, playtest plan and report, status-report extension.
 - `GameProposedWorkItemV1.BrowserVerification` with `GameBrowserVerification` (`canvas`, `page`, `none`): the browser evidence a planned task's candidate must carry.
+- `GameProposedWorkItemV1.InteractionCriteria` (1.2.0): zero-based indexes of the acceptance criteria that need live browser interaction evidence. The Producer records it on the ticket as a `browser-interaction` verification requirement (`CSweet.WorkManagement.Contracts` 5.5.0); QA requires behavioral checks for those criteria only.
+- Research spikes use `VideoGameWorkItemTypeKeys.ResearchSpike`. A spike's deliverable is a record of what was observed; it is judged on whether it covers what it must capture and does not contradict observed behavior, not on whether the observed behavior was correct.
 
 Wire compatibility: JSON shapes and string keys are the same as the per-agent `CrosswiredStudios.VideoGame.Contracts` source snapshots these types came from. Only the CLR namespace differs, so agents on the package and agents still on a snapshot exchange the same payloads.
 

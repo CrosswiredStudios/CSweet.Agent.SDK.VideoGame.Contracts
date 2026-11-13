@@ -76,6 +76,14 @@ public sealed record GameProposedWorkItemV1(
     /// </summary>
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public string? BrowserVerification { get; init; }
+    /// <summary>
+    /// Zero-based indexes of <see cref="AcceptanceCriteria"/> that need live browser interaction evidence (input,
+    /// gameplay or audio behavior observed in the running build). Criteria not listed need none, so QA does not
+    /// probe them beyond the declared browser verification. Requires <see cref="BrowserVerification"/> canvas or page.
+    /// <c>null</c> or empty: no interaction evidence is required. Omitted from JSON when null.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<int>? InteractionCriteria { get; init; }
 }
 
 /// <summary>

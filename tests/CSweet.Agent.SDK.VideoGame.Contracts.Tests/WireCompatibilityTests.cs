@@ -39,6 +39,16 @@ public sealed class WireCompatibilityTests
     }
 
     [Fact]
+    public void Interaction_criteria_round_trip_and_are_omitted_when_null()
+    {
+        var web = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+        var declared = Item(GameBrowserVerification.Canvas) with { InteractionCriteria = [0] };
+        var restored = JsonSerializer.Deserialize<GameProposedWorkItemV1>(JsonSerializer.Serialize(declared, web), web)!;
+        Assert.Equal(new[] { 0 }, restored.InteractionCriteria);
+        Assert.DoesNotContain("InteractionCriteria", JsonSerializer.Serialize(Item(GameBrowserVerification.Canvas)));
+    }
+
+    [Fact]
     public void Browser_verification_offers_exactly_three_choices()
     {
         Assert.Equal(new[] { "canvas", "page", "none" }, GameBrowserVerification.All);
