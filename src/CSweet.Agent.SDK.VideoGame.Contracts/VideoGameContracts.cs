@@ -57,6 +57,9 @@ public sealed record GameProductionPlanningCycleV1(
     string TargetMilestoneKey,
     string PlanningFingerprint);
 
+/// <summary>An exact acceptance obligation from the approved technical Story or its task refinement.</summary>
+public sealed record GameCriterionBinding(string Key, string SourceProposalKey, string ApprovedText, bool RequiresInteraction);
+
 public sealed record GameProposedWorkItemV1(
     string ProposalKey,
     string WorkItemTypeKey,
@@ -84,6 +87,9 @@ public sealed record GameProposedWorkItemV1(
     /// </summary>
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public IReadOnlyList<int>? InteractionCriteria { get; init; }
+
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<GameCriterionBinding>? CriterionBindings { get; init; }
 }
 
 /// <summary>
@@ -101,6 +107,10 @@ public static class GameBrowserVerification
 
     public static IReadOnlyList<string> All { get; } = [Canvas, Page, None];
 }
+
+public sealed record GameDesignConsultation(Guid WorkstreamId, Guid BoardId, Guid BriefId, Guid RevisionId,
+    string RevisionDigest, string StoryKey, string Question);
+public sealed record GameDesignAdvice(string Assessment, string ProposedChange, string EvidenceNeeded);
 
 public sealed record GameDesignerBacklogProposalV1(
     GameProductionPlanningCycleV1 Cycle,
