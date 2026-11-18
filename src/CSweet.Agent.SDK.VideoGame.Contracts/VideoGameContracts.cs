@@ -391,14 +391,6 @@ public sealed record VideoGameAssetStrategyV1(
     IReadOnlyList<string> LicensingConstraints,
     bool ProceduralFallbackAllowed);
 
-public static class VideoGameToolchainRecipeKeys
-{
-    public const string PhaserWeb2D = "phaser.web-2d.v1";
-    public const string BabylonWeb3D = "babylon.web-3d.v1";
-    public const string GodotNative2DGdscript = "godot.native-2d.gdscript.v1";
-    public const string GodotNative3DGdscript = "godot.native-3d.gdscript.v1";
-}
-
 public sealed record ConditionalStaffingRuleV1(
     string RoleKey,
     string JsonPath,
